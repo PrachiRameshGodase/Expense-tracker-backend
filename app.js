@@ -2,10 +2,11 @@ const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const user = require("./models/user");
+const bcrypt = require("bcrypt")
 const sequelize = require("./util/database");
-
+const user = require("./models/user");
+const expense=require("./models/expense")
+const expenseRoutes=require("./routes/expense")
 const app = express();
 app.use(express.json());
 
@@ -116,6 +117,13 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+
+app.use('/',expenseRoutes)
+
+expense.belongsTo(user)
+user.hasMany(expense)
 
 sequelize
   .sync()
