@@ -1,6 +1,6 @@
-const sequelize=require('sequelize')
+const Sequelize=require('sequelize')
 
-const Sequelize=require("sequelize") 
+const sequelize=require("../util/database")
 
 const expense=sequelize.define("expenses",{
     id:{
@@ -17,8 +17,10 @@ const expense=sequelize.define("expenses",{
         type:Sequelize.STRING,
         allowNull:false
     },
-    description:
-        Sequelize.STRING
+    description:{
+        type:Sequelize.STRING,
+        allowNull:false
+    }
     
 })
 module.exports=expense;

@@ -1,10 +1,11 @@
-const expense=require("../models/expense")
+const Expense=require("../models/expense")
 
 
 const getAllExpenses=async(req,res)=>{
+    console.log("get expensesssssssss")
     try{
-        const expenses=await expense.findAll()
-        res.json(expense)
+        const expenses=await Expense.findAll()
+        res.json(expenses)
     }catch(error){
         console.log(error)
         res.status(500)({error:"Internal server erroe"})
@@ -12,17 +13,20 @@ const getAllExpenses=async(req,res)=>{
 
 }
 
-const postExpense=async (req,res)=>{
-    console.log(res.body)
+const createExpense=async (req,res)=>{
     try{
+    console.log(req.body)
+    console.log("i am createddddddddddddddddd")
+  
         const {amount,category,description}=req.body
-
+        console.log(req.user)
         const expense=await req.user.createExpense({
-            description,
             amount,
-            category
+            category,
+            description
         })
         res.json(expense)
+        console.log(expense)
     }catch(err){
         console.log(err)
         res.status(500).json({error:"Internal server error"})
@@ -35,7 +39,7 @@ const updateExpense=async (req,res)=>{
     try{
         const {id}=req.params;
         const {amount,category,description}=req.body
-        const expense=await expense.findByPk(id)
+        const expense=await Expense.findByPk(id)
 
         if(!expense){
             res.status(404).json({error:"expense not found"})
@@ -61,7 +65,7 @@ const deleteExpense=async(req,res)=>{
     try{
         const {id}=req.params
 
-        const expense=await expense.findByPk(id)
+        const expense=await Expense.findByPk(id)
         if(!expense){
             res.status(404).json({error:"expense not found"})
             return
@@ -77,7 +81,7 @@ const deleteExpense=async(req,res)=>{
 
 module.exports={
     getAllExpenses,
-    postExpense,
+    createExpense,
     updateExpense,
     deleteExpense
 }
