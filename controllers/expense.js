@@ -6,6 +6,7 @@ const getAllExpenses=async(req,res)=>{
     try{
         const expenses=await Expense.findAll()
         res.json(expenses)
+        console.log("get",expenses)
     }catch(error){
         console.log(error)
         res.status(500)({error:"Internal server erroe"})
@@ -14,9 +15,10 @@ const getAllExpenses=async(req,res)=>{
 }
 
 const createExpense=async (req,res)=>{
+    console.log("i am createddddddddddddddddd")
     try{
     console.log(req.body)
-    console.log("i am createddddddddddddddddd")
+    
   
         const {amount,category,description}=req.body
         console.log(req.user)
