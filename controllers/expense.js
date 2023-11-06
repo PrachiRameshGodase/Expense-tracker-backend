@@ -25,7 +25,8 @@ const createExpense=async (req,res)=>{
         const expense=await req.user.createExpense({
             amount,
             category,
-            description
+            description,
+            
         })
         res.json(expense)
         console.log(expense)

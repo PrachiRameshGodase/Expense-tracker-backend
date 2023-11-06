@@ -159,7 +159,7 @@ app.use((req, res, next) => {
   const token = req.headers.authorization;
   console.log(token);
   if (token) {
-    const decodedToken = jwt.verify(token, "abcdefghijklmn",);
+    const decodedToken = jwt.verify(token, "your-secret-key",);
     const userId = decodedToken.userId;
     console.log("userId", userId);
 
@@ -206,7 +206,7 @@ app.post("/signup", (req, res) => {
                   userId: user.id,
                   name: user.name,
                 },
-                "abcdefghijklmn",
+                "your-secret-key",
               
               );
 
@@ -251,7 +251,7 @@ app.post("/login",(req, res) => {
               userId: user.id,
               name: user.name,
             },
-            "abcdefghijklmn",
+            "your-secret-key",
             
           );
 
@@ -275,6 +275,10 @@ app.use('/',expenseRoutes)
 
 expenses.belongsTo(user);
 user.hasMany(expenses);
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 
 
 sequelize.sync()
