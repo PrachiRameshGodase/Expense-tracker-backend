@@ -146,7 +146,9 @@ const bcrypt = require("bcrypt");
 const user = require("./models/user");
 const sequelize = require("./util/database");
 const expenses=require("./models/expense")
-const expenseRoutes=require("./routes/expense")
+const expenseRoutes=require("./routes/expense");
+const order=require('./models/order')
+const Razorpay = require("razorpay");
 
 const app = express();
 app.use(express.json());
@@ -177,6 +179,79 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+const razorpay=new Razorpay({
+  key_id:"rzp_test_EbsXg4zniCoIpx",
+  key_secret:"bKLaIcxh7XaBICteJHnHGODS"
+})
+
+app.post('/razorpay/transaction',async(req,res)=>{
+  const token=req.headers.authorization;
+  const decodedToken=jwt.verify(token,"your-secret-key")
+
+  const userId=decodedToken.userId
+
+  try{
+
+    //get the user from the database
+    const user=await UserActivation.findByPk(userId)
+
+    if(!user){
+      return res.status(404).json({error:"User not found"})
+    }
+
+    //create a new Razorpay order
+
+    const razorpay=await razorpay.orders.create({
+      amount:1000,//amount,
+      currency:"INR"//currency
+
+      //add other necessary parameters for the transaction
+    })
+
+    const orderId=razorpayOrder.id;
+
+ // Save the orderId and keyId to the database or perform necessary actions
+ const order = await Order.create({
+  paymentid: "", // Initially empty, will be updated later
+  orderid: orderId,
+  status: "pending",
+  userId: user.id, // Associate the order with the user
+});
+const keyId=razorpayOrder.key_id
+res.json({keyId,orderId})
+
+  }catch(err){
+    console.log(err)
+    res.status(500).json({error:"Internal server error"})
+  }
+})
+
+//for Transaction updated successfully"
+app.put("/razorpay/transaction/:orderId", async (req, res) => {
+  const { orderId } = req.params;
+  const { paymentId } = req.body;
+
+  try {
+    // Find the order by orderId
+    const order = await Order.findOne({ where: { orderid: orderId } });
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    // Update the order with paymentId and status as "completed"
+    order.paymentid = paymentId;
+    order.status = "completed";
+    await order.save();
+
+    res.json({ message: "Transaction updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 //signup...........
 
@@ -275,6 +350,11 @@ app.use('/',expenseRoutes)
 
 expenses.belongsTo(user);
 user.hasMany(expenses);
+
+
+order.belongsTo(user)
+user.hasMany(order)
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
