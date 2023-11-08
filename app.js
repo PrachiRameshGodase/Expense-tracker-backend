@@ -148,6 +148,7 @@ const sequelize = require("./util/database");
 const expenses=require("./models/expense")
 const expenseRoutes=require("./routes/expense");
 const order=require('./models/order')
+const paymentController=require("./controllers/paymentcontroller")
 const Razorpay = require("razorpay");
 
 const app = express();
@@ -180,10 +181,10 @@ app.use((req, res, next) => {
   }
 });
 
-const razorpay=new Razorpay({
-  key_id:"rzp_test_EbsXg4zniCoIpx",
-  key_secret:"bKLaIcxh7XaBICteJHnHGODS"
-})
+// const razorpay=new Razorpay({
+//   key_id:"rzp_test_EbsXg4zniCoIpx",
+//   key_secret:"bKLaIcxh7XaBICteJHnHGODS"
+// })
 
 app.post('/razorpay/transaction',async(req,res)=>{
   const token=req.headers.authorization;
@@ -192,34 +193,11 @@ app.post('/razorpay/transaction',async(req,res)=>{
   const userId=decodedToken.userId
 
   try{
+    const {keyId,orderId}=await paymentController.createRazorpayOrder(userId)
+    res.json({keyId,orderId})
 
-    //get the user from the database
-    const user=await UserActivation.findByPk(userId)
 
-    if(!user){
-      return res.status(404).json({error:"User not found"})
-    }
 
-    //create a new Razorpay order
-
-    const razorpay=await razorpay.orders.create({
-      amount:1000,//amount,
-      currency:"INR"//currency
-
-      //add other necessary parameters for the transaction
-    })
-
-    const orderId=razorpayOrder.id;
-
- // Save the orderId and keyId to the database or perform necessary actions
- const order = await Order.create({
-  paymentid: "", // Initially empty, will be updated later
-  orderid: orderId,
-  status: "pending",
-  userId: user.id, // Associate the order with the user
-});
-const keyId=razorpayOrder.key_id
-res.json({keyId,orderId})
 
   }catch(err){
     console.log(err)
@@ -233,27 +211,9 @@ app.put("/razorpay/transaction/:orderId", async (req, res) => {
   const { paymentId } = req.body;
 
   try {
-    // Find the order by orderId
-    const order = await Order.findOne({ where: { orderid: orderId } });
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
+    const message=await paymentController.updateTransaction(orderId,paymentId)
 
-    // Update the order with paymentId and status as "completed"
-    order.paymentid = paymentId;
-    order.status = "completed";
-    await order.save();
-
-
-    //update the user isPremium filed to true
-
-    const user=await user.findByPk(order.userId)
-    if(user){
-      user.isPremium=true;
-      await user.save()
-    }
-
-    res.json({ message: "Transaction updated successfully" });
+   res.json({message})
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -294,7 +254,7 @@ app.post("/signup", (req, res) => {
               
               );
 
-            res.json({ token, userId: newuser.id });
+            res.json({ token, userId: newuser.id ,isPremium:newuser.isPremium});
           })
           .catch((err) => {
             console.error(err);
@@ -341,7 +301,7 @@ app.post("/login",(req, res) => {
 
           //return token & userId
 
-          res.json({ token, userId: user.id });
+          res.json({ token, userId: user.id ,isPremium:user.isPremium});
         })
         .catch((err) => {
           console.log(err);

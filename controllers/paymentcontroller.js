@@ -21,8 +21,8 @@ const createRazorpayOrder=async(userId)=>{
 
 
         //create a new Razorpay order
-        const razorpayOrder=await razorpay.orderscreate({
-            amount:1000,//amount
+        const razorpayOrder=await razorpay.orders.create({
+            amount:2000,//amount
             currency:"INR"//currency
         })
         const orderId=razorpayOrder.id;
