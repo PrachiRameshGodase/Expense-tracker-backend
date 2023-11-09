@@ -194,6 +194,8 @@ app.post('/razorpay/transaction',async(req,res)=>{
 
   try{
     const {keyId,orderId}=await paymentController.createRazorpayOrder(userId)
+    // console.log(keyId)
+    console.log(orderId)
     res.json({keyId,orderId})
 
 

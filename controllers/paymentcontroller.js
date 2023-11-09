@@ -10,7 +10,7 @@ const razorpay=new Razorpay({
 })
 
 
-const createRazorpayOrder=async(userId)=>{
+const createRazorpayOrder=async(userId,req,res)=>{
     try{
         //get the user from database
 
@@ -22,7 +22,7 @@ const createRazorpayOrder=async(userId)=>{
 
         //create a new Razorpay order
         const razorpayOrder=await razorpay.orders.create({
-            amount:2000,//amount
+            amount:1000,//amount
             currency:"INR"//currency
         })
         const orderId=razorpayOrder.id;
@@ -39,10 +39,13 @@ const createRazorpayOrder=async(userId)=>{
         )
 
         const keyId=razorpayOrder.key_id;
-        return {keyId,orderId}
+        console.log(orderId)
+        return {orderId,keyId}
+        // return res.status(201).json({order,key_id:razorpayOrder.key_id})
     }catch(err){
         console.log(err)
         throw new Error("Failed to create Razorpay order")
+        // res.status(403).json({message:"Something went wrong in create order",error:err})
     }
     
     
