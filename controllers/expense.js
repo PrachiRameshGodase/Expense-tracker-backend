@@ -32,7 +32,7 @@ const createExpense=async (req,res)=>{
         console.log(expense)
     }catch(err){
         console.log(err)
-        res.status(500).json({error:"Internal server error"})
+        res.status(500).json({error:"Internal server error for create expense"})
     }
 }
 
