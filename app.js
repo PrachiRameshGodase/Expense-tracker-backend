@@ -224,7 +224,7 @@ app.put("/razorpay/transaction/:orderId", async (req, res) => {
 
 //showleaderboard....
 
-app.get("/showleaderboard",async(req,res)=>{
+app.get("/premium/showleaderboard",async(req,res)=>{
   try{
     //fetch all users from the database
     const users=await user.findAll()
@@ -245,11 +245,10 @@ app.get("/showleaderboard",async(req,res)=>{
       userExpenses.push({name:user.name,totalExpense})
     }
 
-    const leaderboard=userExpenses.sort((a,b)=>{
-      b.totalExpense-a.totalExpense
-    })
+    const leaderboard = userExpenses.sort((a, b) => b.totalExpense - a.totalExpense);
 
-    res.json({leaderboard})
+res.json({ leaderboard });
+
   }catch(err){
     console.log(err)
     res.status(500).json({err:"Error in getting leaderboard expenxse"})
