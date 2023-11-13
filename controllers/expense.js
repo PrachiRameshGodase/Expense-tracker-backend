@@ -1,4 +1,5 @@
 const Expense = require("../models/expense");
+const User=require("../models/user")
 
 const getAllExpenses = async (req, res) => {
   console.log("get expensesssssssss");
@@ -17,13 +18,18 @@ const createExpense = async (req, res) => {
   try {
     console.log(req.body);
 
-    const { amount, category, description } = req.body;
+    const { amount, category, description,totalexpense } = req.body;
     console.log(req.user);
     const expense = await req.user.createExpense({
       amount,
       category,
       description,
+      // totalexpense
     });
+    const user = await User.findByPk(req.user.id);
+    user.totalexpense = (user.totalexpense || 0) + parseFloat(amount); // Add the expense amount to the total or initialize to 0 if null
+    await user.save(); // Save the updated user
+
     res.json(expense);
     console.log(expense);
   } catch (err) {
@@ -37,19 +43,28 @@ const updateExpense = async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { amount, category, description } = req.body;
+    const { amount, category, description,totalexpense } = req.body;
     const expense = await Expense.findByPk(id);
 
     if (!expense) {
       res.status(404).json({ error: "expense not found" });
       return;
     }
-
+    const oldAmount = expense.amount; // getting old amount
     expense.amount = amount;
     expense.category = category;
     expense.description = description;
 
     await expense.save();
+
+    // Fetch the user associated with the product
+    const user = await User.findByPk(product.userId);
+
+    // Calculate the new totalexpense
+    user.totalexpense = (user.totalexpense || 0) - oldAmount + parseFloat(amount);
+
+    await user.save(); // Save the updated user
+
     res.json(expense);
   } catch (err) {
     console.log(err);

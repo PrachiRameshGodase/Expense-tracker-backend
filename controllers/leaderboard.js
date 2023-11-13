@@ -10,7 +10,7 @@ const getLeaderboard = async (req, res) => {
       attributes: [
         "id",
         "name",
-        [sequelize.fn("sum", sequelize.col("expenses.amount")), "totalExpense"],
+        [sequelize.fn("sum", sequelize.col("expenses.amount")), "totalexpense"],
       ],
       include: [
         {
@@ -19,7 +19,7 @@ const getLeaderboard = async (req, res) => {
         },
       ],
       group: ["id"],
-      order: [["totalExpense", "DESC"]],
+      order: [["totalexpense", "DESC"]],
     });
 
     //Initialize an array to store user expenses
