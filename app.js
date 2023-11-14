@@ -13,6 +13,17 @@ const paymentController = require("./controllers/payment");
 const userRoutes = require("./routes/user");
 const leaderboardRoutes = require("./routes/leaderboard");
 
+require("dotenv").config();
+const Sib = require("sib-api-v3-sdk");
+
+//configure sendinblue API client with your API key
+const client = Sib.ApiClient.instance;
+const apiKey = client.authentications["api-key"];
+apiKey.apiKey = process.env.API_KEY;
+
+const tranEmailApi = new Sib.TransactionalEmailsApi();
+const sender = { name: "Prachi", email: "prachigodase2@gmail.com" };
+
 const app = express();
 app.use(express.json());
 
@@ -83,6 +94,30 @@ app.put("/razorpay/transaction/:orderId", async (req, res) => {
 app.use("/", expenseRoutes);
 app.use("/", userRoutes);
 app.use("/", leaderboardRoutes);
+
+app.post("/forgotpassword", async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log(email);
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    //send the dummy email to the specfied email address
+    const recievers = [{ email: email }];
+
+    const response = await tranEmailApi.sendTransacEmail({
+      sender,
+      to: recievers,
+      subject: "Forgot Password",
+      textContent: "This is dummy email for reset password",
+    });
+    console.log(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err: "Error during forgot pass" });
+  }
+});
 
 expenses.belongsTo(user);
 user.hasMany(expenses);
