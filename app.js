@@ -15,6 +15,12 @@ const userRoutes = require("./routes/user");
 const leaderboardRoutes = require("./routes/leaderboard");
 const forgotpasswordRoutes = require("./routes/forgotpassword");
 
+const AWS=require('aws-sdk')
+
+function uploadTos3(data,filename){
+  const 
+}
+
 const app = express();
 app.use(express.json());
 
