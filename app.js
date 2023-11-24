@@ -18,8 +18,46 @@ const forgotpasswordRoutes = require("./routes/forgotpassword");
 const AWS=require('aws-sdk')
 
 function uploadTos3(data,filename){
-  const 
+  const BUCKET_NAME='expensetrackingapp11';
+  const IAM_USER_KEY='AKIA3HM3ZRX6GTI4WOVS';
+  const IAM_USER_SECRET='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';
+  
+  let s3bucket=new AWS.S3({
+    accessKeyId:IAM_USER_KEY,
+    secretAccessKey:IAM_USER_SECRET
+  })
+
+  let params={
+    Bucket:BUCKET_NAME,
+    Key:filename,
+    Body:data,
+    ACL:"public-read"
+  }
+
+  return new Promise((resolve,reject)=>{
+    s3bucket.upload(params,(err,s3response)=>{
+      if(err){
+        console.log("Something went wrong",err)
+      }else{
+        console.log("Success",s3response)
+        resolve(s3response.Location)
+      }
+    })
+  })
 }
+
+app.get("/download",async(req,res)=>{
+  try{
+    const userId=req.user.id;
+    const expenses=await products.findAll({where:{userId}})
+    const stringfiedexpense=JSON.stringify(expenses)
+    const filename=`Expenses${userId}/${new Date()}.txt`
+    const fileUrl=await uploadTos3(stringfiedexpense,filename)
+    res.status(200).json({fileUrl,success:true})
+  }catch(err){
+    console.log(err)
+  }
+})
 
 const app = express();
 app.use(express.json());
