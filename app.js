@@ -14,6 +14,7 @@ const paymentRoutes = require("./routes/payment");
 const userRoutes = require("./routes/user");
 const leaderboardRoutes = require("./routes/leaderboard");
 const forgotpasswordRoutes = require("./routes/forgotpassword");
+const downloadExpensesRoutes=require("/")
 
 const AWS=require('aws-sdk');
 const Download = require("./models/downloadexpense");
@@ -111,6 +112,7 @@ app.use("/", userRoutes);
 app.use("/", leaderboardRoutes);
 app.use("/", paymentRoutes);
 app.use("/", forgotpasswordRoutes);
+app.use("/",downloadExpensesRoutes)
 
 user.hasMany(expenses);
 expenses.belongsTo(user);

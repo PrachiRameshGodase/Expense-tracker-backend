@@ -2,11 +2,22 @@ const Expense = require("../models/expense");
 const User=require("../models/user");
 const sequelize = require("../util/database");
 
+const ITEMS_PER_PAGE = 5;
+
 const getAllExpenses = async (req, res) => {
   console.log("get expensesssssssss");
+  const {page,limit}=req.query;
+  const currentPage=parseInt(page) || 1;
+  const offset=(currentPage-1)*ITEMS_PER_PAGE
+  console.log("PAGE",page)
   try {
-    const expenses = await Expense.findAll();
-    res.json(expenses);
+    const userId=req.user.id
+    const {count,rows:expenses}=await Expense.findAndCountAll({
+      where:{userId},
+      limit:parseInt(limit),
+      offset
+    })
+    res.json({expenses,totalItems:count})
     console.log("get", expenses);
   } catch (error) {
     console.log(error);
@@ -20,7 +31,7 @@ const createExpense = async (req, res) => {
   try {
     console.log(req.body);
 
-    const { amount, category, description,totalexpense } = req.body;
+    const { amount, category, description} = req.body;
     console.log(req.user);
     const expense = await req.user.createExpense({
       amount,
