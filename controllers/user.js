@@ -28,7 +28,7 @@ const createnewUser = async (req, res) => {
                 userId: user.id,
                 name: user.name,
               },
-              "your-secret-key"
+              process.env.JWT_SECRET_KEY
             );
 
             res.json({
@@ -74,7 +74,7 @@ const loginuser = async (req, res) => {
               userId: user.id,
               name: user.name,
             },
-            "your-secret-key"
+            process.env.JWT_SECRET_KEY
           );
 
           //return token & userId

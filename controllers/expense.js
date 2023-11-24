@@ -2,13 +2,13 @@ const Expense = require("../models/expense");
 const User=require("../models/user");
 const sequelize = require("../util/database");
 
-const ITEMS_PER_PAGE = 5;
+// const ITEMS_PER_PAGE = 5;
 
 const getAllExpenses = async (req, res) => {
   console.log("get expensesssssssss");
   const {page,limit}=req.query;
   const currentPage=parseInt(page) || 1;
-  const offset=(currentPage-1)*ITEMS_PER_PAGE
+  const offset=(currentPage-1)*limit
   console.log("PAGE",page)
   try {
     const userId=req.user.id

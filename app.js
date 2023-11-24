@@ -88,7 +88,7 @@ app.use((req, res, next) => {
   const token = req.headers.authorization;
   console.log(token);
   if (token) {
-    const decodedToken = jwt.verify(token, "your-secret-key");
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const userId = decodedToken.userId;
     console.log("userId", userId);
 
@@ -113,6 +113,8 @@ app.use("/", leaderboardRoutes);
 app.use("/", paymentRoutes);
 app.use("/", forgotpasswordRoutes);
 app.use("/",downloadExpensesRoutes)
+app.use(helmet());
+app.use(compression());
 
 user.hasMany(expenses);
 expenses.belongsTo(user);
@@ -138,7 +140,7 @@ sequelize
   })
   .then((user) => {
     console.log(user);
-    app.listen(3000);
+    app.listen(process.env.PORT|| 3000);
   })
   .catch((err) => {
     console.log(err);
