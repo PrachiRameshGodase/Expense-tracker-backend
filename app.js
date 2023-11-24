@@ -1,7 +1,7 @@
 const express = require("express");
 const sequelize = require("./util/database");
 const cors = require("cors");
-
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 const user = require("./models/user");
@@ -15,7 +15,8 @@ const userRoutes = require("./routes/user");
 const leaderboardRoutes = require("./routes/leaderboard");
 const forgotpasswordRoutes = require("./routes/forgotpassword");
 
-const AWS=require('aws-sdk')
+const AWS=require('aws-sdk');
+const Download = require("./models/downloadexpense");
 
 function uploadTos3(data,filename){
   const BUCKET_NAME=process.env.BUCKET_NAME;
@@ -53,12 +54,28 @@ app.get("/download",async(req,res)=>{
     const stringfiedexpense=JSON.stringify(expenses)
     const filename=`Expenses${userId}/${new Date()}.txt`
     const fileUrl=await uploadTos3(stringfiedexpense,filename)
+
+    await Download.create({
+      fileUrl:fileUrl,
+      userId:userId
+    })
     res.status(200).json({fileUrl,success:true})
   }catch(err){
     console.log(err)
   }
 })
 
+app.get("/alldownload",async(req,res)=>{
+  try{
+    const userId=req.user.id;
+    const fileUrls=await Download.findAll({where:{userId}})
+
+    res.status(200).json({fileUrls,success:true})
+  }
+  catch(err){
+    console.log(err)
+  }
+})
 const app = express();
 app.use(express.json());
 
@@ -103,6 +120,9 @@ order.belongsTo(user);
 
 user.hasMany(Request);
 Request.belongsTo(user);
+
+user.hasMany(Download)
+Download.belongsTo(user)
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
