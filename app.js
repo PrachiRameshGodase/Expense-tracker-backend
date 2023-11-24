@@ -18,9 +18,9 @@ const forgotpasswordRoutes = require("./routes/forgotpassword");
 const AWS=require('aws-sdk')
 
 function uploadTos3(data,filename){
-  const BUCKET_NAME='expensetrackingapp11';
-  const IAM_USER_KEY='AKIA3HM3ZRX6GTI4WOVS';
-  const IAM_USER_SECRET='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';
+  const BUCKET_NAME=process.env.BUCKET_NAME;
+  const IAM_USER_KEY=process.env.IAM_USER_KEY;
+  const IAM_USER_SECRET=process.env.IAM_USER_SECRET;
   
   let s3bucket=new AWS.S3({
     accessKeyId:IAM_USER_KEY,
