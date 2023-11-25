@@ -1,15 +1,15 @@
-const sequelize=require("../util/database")
+const sequelize = require("../util/database");
 
-const Sequelize=require("sequelize")
+const Sequelize = require("sequelize");
 
-const Download=sequelize.define("download",{
-    id:{
-        type:Sequelize.INTEGER,
-        autoIncrement:true,
-        allowNull:false,
-        primaryKey:true
-    },
-    fileUrl:Sequelize.STRING
-})
+const Download = sequelize.define("download", {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  fileUrl: Sequelize.STRING,
+});
 
-module.exports=Download
+module.exports = Download;
