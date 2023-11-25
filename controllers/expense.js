@@ -4,24 +4,43 @@ const sequelize = require("../util/database");
 
 // const ITEMS_PER_PAGE = 5;
 
-const getAllExpenses = async (req, res) => {
-  console.log("get expensesssssssss");
-  const {page,limit}=req.query;
-  const currentPage=parseInt(page) || 1;
-  const offset=(currentPage-1)*limit
+// const getAllExpenses = async (req, res) => {
+//   console.log("get expensesssssssss");
+//   const {page,limit}=req.query;
+//   const currentPage=parseInt(page) || 1;
+//   const offset = (currentPage - 1) * parseInt(limit);
+//   console.log("PAGE",page)
+//   try {
+//     const userId=req.user.id
+//     const {count,rows:expenses}=await Expense.findAndCountAll({
+//       where:{userId},
+//       limit:parseInt(limit),
+//       offset
+//     })
+//     res.status(201).json({expenses,totalItems:count})
+//     console.log("get", expenses);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Internal server erroe" });
+//   }
+// };
+const getAllExpenses=async (req, res) => {
+  const { page, limit } = req.query;
+  const currentPage = parseInt(page) || 1;
+  const offset = (currentPage - 1) * limit;
   console.log("PAGE",page)
   try {
-    const userId=req.user.id
-    const {count,rows:expenses}=await Expense.findAndCountAll({
-      where:{userId},
-      limit:parseInt(limit),
-      offset
-    })
-    res.json({expenses,totalItems:count})
-    console.log("get", expenses);
+    const userId = req.user.id;
+    const { count, rows: expenses } = await Expense.findAndCountAll({
+      where: { userId },
+      limit: parseInt(limit),
+      offset,
+    });
+
+    res.status(201).json({ expenses, totalItems: count });
   } catch (error) {
     console.log(error);
-    res.status(500)({ error: "Internal server erroe" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

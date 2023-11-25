@@ -3,6 +3,9 @@ const sequelize = require("./util/database");
 const cors = require("cors");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const helmet = require("helmet");
+const compression = require("compression");
+
 
 const user = require("./models/user");
 const Request = require("./models/forgotpassword");
@@ -14,10 +17,42 @@ const paymentRoutes = require("./routes/payment");
 const userRoutes = require("./routes/user");
 const leaderboardRoutes = require("./routes/leaderboard");
 const forgotpasswordRoutes = require("./routes/forgotpassword");
-const downloadExpensesRoutes=require("/")
+const downloadExpensesRoutes=require("./routes/download")
 
 const AWS=require('aws-sdk');
 const Download = require("./models/downloadexpense");
+
+const app = express();
+app.use(express.json());
+
+app.use(cors());
+
+
+
+app.use((req, res, next) => {
+  console.log("req", req);
+
+  const token = req.headers.authorization;
+  console.log(token);
+  if (token) {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const userId = decodedToken.userId;
+    console.log("userId", userId);
+
+    user
+      .findByPk(userId)
+      .then((user) => {
+        req.user = user;
+        next();
+      })
+      .catch((err) => {
+        console.log(err);
+        next();
+      });
+  } else {
+    next();
+  }
+});
 
 function uploadTos3(data,filename){
   const BUCKET_NAME=process.env.BUCKET_NAME;
@@ -77,35 +112,7 @@ app.get("/alldownload",async(req,res)=>{
     console.log(err)
   }
 })
-const app = express();
-app.use(express.json());
 
-app.use(cors());
-
-app.use((req, res, next) => {
-  console.log("req", req);
-
-  const token = req.headers.authorization;
-  console.log(token);
-  if (token) {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const userId = decodedToken.userId;
-    console.log("userId", userId);
-
-    user
-      .findByPk(userId)
-      .then((user) => {
-        req.user = user;
-        next();
-      })
-      .catch((err) => {
-        console.log(err);
-        next();
-      });
-  } else {
-    next();
-  }
-});
 
 app.use("/", expenseRoutes);
 app.use("/", userRoutes);
@@ -115,6 +122,7 @@ app.use("/", forgotpasswordRoutes);
 app.use("/",downloadExpensesRoutes)
 app.use(helmet());
 app.use(compression());
+
 
 user.hasMany(expenses);
 expenses.belongsTo(user);
@@ -140,7 +148,7 @@ sequelize
   })
   .then((user) => {
     console.log(user);
-    app.listen(process.env.PORT|| 3000);
+    app.listen(3000);
   })
   .catch((err) => {
     console.log(err);
